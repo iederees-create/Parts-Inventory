@@ -1,0 +1,2041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parts & Inventory Management System</title>
+    <style>
+        /* Basic Reset & Body Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f7f6;
+            color: #333;
+            display: flex;
+            min-height: 100vh;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .user-info {
+            font-size: 14px;
+        }
+
+        /* Navigation */
+        nav {
+            background-color: #34495e;
+            padding: 10px 20px;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        nav ul li {
+            margin-right: 20px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 0;
+            transition: color 0.3s ease;
+        }
+        nav ul li a:hover {
+            color: #ecf0f1;
+        }
+
+        /* Main Content Area */
+        .container {
+            display: flex;
+            flex: 1;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Sidebar/Filters */
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .sidebar h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .filter-group {
+            margin-bottom: 15px;
+        }
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .filter-group input[type="text"],
+        .filter-group select {
+            width: calc(100% - 10px);
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Main Content (Part List/Detail) */
+        .main-content {
+            flex: 1;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Search Bar */
+        .search-bar {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .search-bar input[type="text"] {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 16px;
+        }
+        .search-bar button {
+            padding: 10px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+        .search-bar button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Part List Table */
+        .part-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .part-table th, .part-table td {
+            border: 1px solid #eee;
+            padding: 10px;
+            text-align: left;
+        }
+        .part-table th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        .part-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .part-table tr:hover {
+            background-color: #eef;
+            cursor: pointer;
+        }
+        .part-table .view-button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .part-table .view-button:hover {
+            background-color: #27ae60;
+        }
+        .part-table .edit-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-left: 5px;
+        }
+        .part-table .edit-button:hover {
+            background-color: #2980b9;
+        }
+
+        /* Part Detail View */
+        .part-detail-view {
+            display: none; /* Hidden by default */
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+        }
+        .part-detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .part-detail-header h2 {
+            margin: 0;
+            color: #2c3e50;
+        }
+        .back-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .back-button:hover {
+            background-color: #c0392b;
+        }
+        .part-detail-content {
+            display: flex;
+            gap: 20px;
+        }
+        .part-detail-images {
+            flex: 0 0 300px; /* Fixed width for images */
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            text-align: center;
+        }
+        .part-detail-images img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .part-detail-info {
+            flex: 1;
+        }
+        .part-detail-info h3 {
+            margin-top: 0;
+            color: #34495e;
+        }
+        .part-detail-info p {
+            margin-bottom: 8px;
+        }
+        .part-detail-info strong {
+            display: inline-block;
+            width: 120px; /* Align labels */
+            font-weight: bold;
+        }
+        .part-detail-tabs {
+            margin-top: 20px;
+        }
+        .part-detail-tabs button {
+            background-color: #ddd;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            margin-right: 5px;
+            border-radius: 4px 4px 0 0;
+            transition: background-color 0.3s ease;
+        }
+        .part-detail-tabs button.active {
+            background-color: #3498db;
+            color: white;
+        }
+        .part-detail-tabs button:hover:not(.active) {
+            background-color: #ccc;
+        }
+        .tab-content {
+            border: 1px solid #ddd;
+            border-top: none;
+            padding: 15px;
+            border-radius: 0 0 8px 8px;
+            background-color: #fcfcfc;
+        }
+        .tab-content table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .tab-content table th, .tab-content table td {
+            border: 1px solid #eee;
+            padding: 8px;
+            text-align: left;
+        }
+        .tab-content table th {
+            background-color: #f2f2f2;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .close-button {
+            float: right;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .form-group textarea {
+            min-height: 100px;
+        }
+        .form-actions {
+            margin-top: 20px;
+            text-align: right;
+        }
+        .form-actions button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        .form-actions .save-button {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .form-actions .cancel-button {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .image-upload-container {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .image-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-preview-item .remove-image {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(231, 76, 60, 0.8);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .spec-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .spec-row input {
+            flex: 1;
+        }
+        .spec-row button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-spec-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+        .inventory-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .inventory-row input {
+            flex: 1;
+        }
+        .inventory-row button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .add-inventory-button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-bottom: 15px;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+        .button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s ease;
+        }
+        .button-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        .button-primary:hover {
+            background-color: #2980b9;
+        }
+        .button-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .button-success:hover {
+            background-color: #27ae60;
+        }
+        .button-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .button-danger:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Parts & Inventory Management</h1>
+        <div class="user-info">Logged in as: <span id="current-user">Inventory Manager</span></div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#" id="nav-dashboard">Dashboard</a></li>
+            <li><a href="#" id="nav-parts">Parts</a></li>
+            <li><a href="#" id="nav-inventory">Inventory Tracking</a></li>
+            <li><a href="#" id="nav-reports">Reports</a></li>
+            <li><a href="#" id="nav-suppliers">Suppliers</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Filters</h3>
+            <div class="filter-group">
+                <label for="search-sku">Search by SKU:</label>
+                <input type="text" id="search-sku" placeholder="Enter SKU...">
+            </div>
+            <div class="filter-group">
+                <label for="search-keyword">Keyword:</label>
+                <input type="text" id="search-keyword" placeholder="Part name, description...">
+            </div>
+            <div class="filter-group">
+                <label for="filter-category">Category:</label>
+                <select id="filter-category">
+                    <option value="">All Categories</option>
+                    <option value="resistors">Resistors</option>
+                    <option value="capacitors">Capacitors</option>
+                    <option value="microcontrollers">Microcontrollers</option>
+                    <option value="connectors">Connectors</option>
+                    <option value="diodes">Diodes</option>
+                    <option value="transistors">Transistors</option>
+                    <option value="ics">Integrated Circuits</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="filter-supplier">Supplier:</label>
+                <select id="filter-supplier">
+                    <option value="">All Suppliers</option>
+                    <option value="digikey">DigiKey</option>
+                    <option value="mouser">Mouser</option>
+                    <option value="farnell">Farnell</option>
+                    <option value="rs">RS Components</option>
+                    <option value="element14">Element14</option>
+                </select>
+            </div>
+            <button class="button button-primary" onclick="applyFilters()" style="width: 100%;">Apply Filters</button>
+        </aside>
+
+        <main class="main-content">
+            <section id="parts-list-section">
+                <h2>Parts List</h2>
+                <div class="search-bar">
+                    <input type="text" id="global-search-input" placeholder="Search all parts...">
+                    <button onclick="globalSearch()">Search</button>
+                </div>
+
+                <button class="button button-success" style="margin-bottom: 15px;" onclick="showAddPartModal()">Register New Part</button>
+                <button class="button button-primary" style="margin-bottom: 15px; margin-left: 10px;" onclick="showBulkUploadModal()">Bulk Upload Images</button>
+
+                <table class="part-table">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Part Name</th>
+                            <th>Manufacturer</th>
+                            <th>Current Stock</th>
+                            <th>Location</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="parts-table-body">
+                        <!-- Will be populated by JavaScript -->
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="part-detail-section" class="part-detail-view hidden">
+                <div class="part-detail-header">
+                    <h2 id="detail-part-name">Part Name (SKU)</h2>
+                    <div>
+                        <button class="button button-primary" onclick="editCurrentPart()">Edit Part</button>
+                        <button class="back-button" onclick="showPartsList()">Back to List</button>
+                    </div>
+                </div>
+                <div class="part-detail-content">
+                    <div class="part-detail-images">
+                        <img id="detail-main-image" src="https://via.placeholder.com/280x200?text=Part+Image" alt="Part Image">
+                        <div class="thumbnail-gallery" id="thumbnail-gallery">
+                            <!-- Thumbnails will be added here -->
+                        </div>
+                    </div>
+                    <div class="part-detail-info">
+                        <h3>General Information</h3>
+                        <p><strong>SKU:</strong> <span id="detail-sku">SKUXXX</span></p>
+                        <p><strong>Manufacturer:</strong> <span id="detail-manufacturer">Manufacturer Name</span></p>
+                        <p><strong>Manufacturer PN:</strong> <span id="detail-mfr-pn">MFRPN123</span></p>
+                        <p><strong>Preferred Supplier:</strong> <span id="detail-supplier">Supplier A</span></p>
+                        <p><strong>Cost:</strong> <span id="detail-cost">$0.00</span></p>
+                        <p><strong>Description:</strong> <span id="detail-description">A brief description of the part.</span></p>
+                        <p><strong>Lifecycle Status:</strong> <span id="detail-status">Active</span></p>
+                        <p><strong>Category:</strong> <span id="detail-category">Uncategorized</span></p>
+                    </div>
+                </div>
+
+                <div class="part-detail-tabs">
+                    <button class="tab-button active" data-tab="specifications">Specifications</button>
+                    <button class="tab-button" data-tab="inventory">Inventory</button>
+                    <button class="tab-button" data-tab="history">History</button>
+                    <button class="tab-button" data-tab="attachments">Attachments</button>
+                </div>
+                <div class="tab-content" id="tab-specifications">
+                    <h3>Technical Specifications</h3>
+                    <table id="specs-table">
+                        <tr><th>Attribute</th><th>Value</th></tr>
+                        <!-- Will be populated by JavaScript -->
+                    </table>
+                </div>
+                <div class="tab-content hidden" id="tab-inventory">
+                    <h3>Inventory Details</h3>
+                    <table id="inventory-table">
+                        <tr><th>Location</th><th>Current Stock</th><th>Min Level</th><th>Reorder Point</th></tr>
+                        <!-- Will be populated by JavaScript -->
+                    </table>
+                    <button class="button button-success" style="margin-top: 15px;" onclick="adjustStockForCurrentPart()">Adjust Stock</button>
+                </div>
+                <div class="tab-content hidden" id="tab-history">
+                    <h3>Change History / Audit Log</h3>
+                    <table id="history-table">
+                        <tr><th>Date/Time</th><th>User</th><th>Action</th><th>Details</th></tr>
+                        <!-- Will be populated by JavaScript -->
+                    </table>
+                </div>
+                <div class="tab-content hidden" id="tab-attachments">
+                    <h3>Attachments</h3>
+                    <ul id="attachments-list">
+                        <!-- Will be populated by JavaScript -->
+                    </ul>
+                    <button class="button button-primary" onclick="addAttachmentToCurrentPart()">Add Attachment</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Part Modal -->
+    <div id="add-part-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('add-part-modal')">&times;</span>
+            <h2>Register New Part</h2>
+            <form id="add-part-form">
+                <div class="form-group">
+                    <label for="new-part-sku">SKU*</label>
+                    <input type="text" id="new-part-sku" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-part-name">Part Name*</label>
+                    <input type="text" id="new-part-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-part-manufacturer">Manufacturer*</label>
+                    <input type="text" id="new-part-manufacturer" required>
+                </div>
+                <div class="form-group">
+                    <label for="new-part-mfr-pn">Manufacturer Part Number</label>
+                    <input type="text" id="new-part-mfr-pn">
+                </div>
+                <div class="form-group">
+                    <label for="new-part-supplier">Preferred Supplier</label>
+                    <select id="new-part-supplier">
+                        <option value="">Select Supplier</option>
+                        <option value="digikey">DigiKey</option>
+                        <option value="mouser">Mouser</option>
+                        <option value="farnell">Farnell</option>
+                        <option value="rs">RS Components</option>
+                        <option value="element14">Element14</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="new-part-cost">Cost (USD)</label>
+                    <input type="number" id="new-part-cost" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="new-part-description">Description</label>
+                    <textarea id="new-part-description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="new-part-status">Status</label>
+                    <select id="new-part-status">
+                        <option value="active">Active</option>
+                        <option value="obsolete">Obsolete</option>
+                        <option value="discontinued">Discontinued</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="new-part-category">Category</label>
+                    <select id="new-part-category">
+                        <option value="">Select Category</option>
+                        <option value="resistors">Resistors</option>
+                        <option value="capacitors">Capacitors</option>
+                        <option value="microcontrollers">Microcontrollers</option>
+                        <option value="connectors">Connectors</option>
+                        <option value="diodes">Diodes</option>
+                        <option value="transistors">Transistors</option>
+                        <option value="ics">Integrated Circuits</option>
+                    </select>
+                </div>
+                
+                <h3>Images</h3>
+                <div class="image-upload-container">
+                    <input type="file" id="part-images-upload" multiple accept="image/*" style="display: none;">
+                    <button type="button" class="button button-primary" onclick="document.getElementById('part-images-upload').click()">Select Images</button>
+                    <p>or drag and drop images here</p>
+                    <div class="image-preview" id="image-preview">
+                        <!-- Image previews will appear here -->
+                    </div>
+                </div>
+                
+                <h3>Specifications</h3>
+                <div id="specifications-container">
+                    <div class="spec-row">
+                        <input type="text" placeholder="Attribute" class="spec-attribute">
+                        <input type="text" placeholder="Value" class="spec-value">
+                        <button type="button" class="remove-spec-button">&times;</button>
+                    </div>
+                </div>
+                <button type="button" class="add-spec-button" onclick="addSpecRow()">Add Specification</button>
+                
+                <h3>Initial Inventory</h3>
+                <div id="inventory-container">
+                    <div class="inventory-row">
+                        <input type="text" placeholder="Location" class="inventory-location">
+                        <input type="number" placeholder="Quantity" class="inventory-quantity" min="0">
+                        <input type="number" placeholder="Min Level" class="inventory-min" min="0">
+                        <input type="number" placeholder="Reorder Point" class="inventory-reorder" min="0">
+                        <button type="button" class="remove-inventory-button">&times;</button>
+                    </div>
+                </div>
+                <button type="button" class="add-inventory-button" onclick="addInventoryRow()">Add Inventory Location</button>
+                
+                <div class="form-actions">
+                    <button type="button" class="cancel-button" onclick="closeModal('add-part-modal')">Cancel</button>
+                    <button type="submit" class="save-button">Save Part</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Part Modal -->
+    <div id="edit-part-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('edit-part-modal')">&times;</span>
+            <h2>Edit Part</h2>
+            <form id="edit-part-form">
+                <input type="hidden" id="edit-part-id">
+                <div class="form-group">
+                    <label for="edit-part-sku">SKU*</label>
+                    <input type="text" id="edit-part-sku" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-part-name">Part Name*</label>
+                    <input type="text" id="edit-part-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-part-manufacturer">Manufacturer*</label>
+                    <input type="text" id="edit-part-manufacturer" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit-part-mfr-pn">Manufacturer Part Number</label>
+                    <input type="text" id="edit-part-mfr-pn">
+                </div>
+                <div class="form-group">
+                    <label for="edit-part-supplier">Preferred Supplier</label>
+                    <select id="edit-part-supplier">
+                        <option value="">Select Supplier</option>
+                        <option value="digikey">DigiKey</option>
+                        <option value="mouser">Mouser</option>
+                        <option value="farnell">Farnell</option>
+                        <option value="rs">RS Components</option>
+                        <option value="element14">Element14</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-part-cost">Cost (USD)</label>
+                    <input type="number" id="edit-part-cost" step="0.01" min="0">
+                </div>
+                <div class="form-group">
+                    <label for="edit-part-description">Description</label>
+                    <textarea id="edit-part-description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="edit-part-status">Status</label>
+                    <select id="edit-part-status">
+                        <option value="active">Active</option>
+                        <option value="obsolete">Obsolete</option>
+                        <option value="discontinued">Discontinued</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="edit-part-category">Category</label>
+                    <select id="edit-part-category">
+                        <option value="">Select Category</option>
+                        <option value="resistors">Resistors</option>
+                        <option value="capacitors">Capacitors</option>
+                        <option value="microcontrollers">Microcontrollers</option>
+                        <option value="connectors">Connectors</option>
+                        <option value="diodes">Diodes</option>
+                        <option value="transistors">Transistors</option>
+                        <option value="ics">Integrated Circuits</option>
+                    </select>
+                </div>
+                
+                <h3>Images</h3>
+                <div class="image-upload-container">
+                    <input type="file" id="edit-part-images-upload" multiple accept="image/*" style="display: none;">
+                    <button type="button" class="button button-primary" onclick="document.getElementById('edit-part-images-upload').click()">Add More Images</button>
+                    <p>or drag and drop images here</p>
+                    <div class="image-preview" id="edit-image-preview">
+                        <!-- Image previews will appear here -->
+                    </div>
+                </div>
+                
+                <h3>Specifications</h3>
+                <div id="edit-specifications-container">
+                    <!-- Will be populated when editing -->
+                </div>
+                <button type="button" class="add-spec-button" onclick="addEditSpecRow()">Add Specification</button>
+                
+                <h3>Inventory</h3>
+                <div id="edit-inventory-container">
+                    <!-- Will be populated when editing -->
+                </div>
+                <button type="button" class="add-inventory-button" onclick="addEditInventoryRow()">Add Inventory Location</button>
+                
+                <div class="form-actions">
+                    <button type="button" class="cancel-button" onclick="closeModal('edit-part-modal')">Cancel</button>
+                    <button type="submit" class="save-button">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bulk Upload Modal -->
+    <div id="bulk-upload-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('bulk-upload-modal')">&times;</span>
+            <h2>Bulk Upload Part Images</h2>
+            <div class="form-group">
+                <label>Select images to upload (will be matched by SKU in filename)</label>
+                <input type="file" id="bulk-image-upload" multiple accept="image/*" style="display: none;">
+                <button type="button" class="button button-primary" onclick="document.getElementById('bulk-image-upload').click()">Select Images</button>
+                <p>or drag and drop images here</p>
+            </div>
+            
+            <div class="image-preview" id="bulk-image-preview">
+                <!-- Bulk upload previews will appear here -->
+            </div>
+            
+            <div class="form-group" style="margin-top: 20px;">
+                <label>Filename Pattern:</label>
+                <p>Images will be matched to parts based on SKU in the filename. Example patterns:</p>
+                <ul>
+                    <li><code>SKU12345.jpg</code> - Will match part with SKU "SKU12345"</li>
+                    <li><code>Resistor_10k_SKU12345.jpg</code> - Will match part with SKU "SKU12345"</li>
+                    <li><code>SKU12345_front.jpg</code> - Will match part with SKU "SKU12345"</li>
+                </ul>
+            </div>
+            
+            <div class="form-actions">
+                <button type="button" class="cancel-button" onclick="closeModal('bulk-upload-modal')">Cancel</button>
+                <button type="button" class="save-button" onclick="processBulkUpload()">Upload Images</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Attachment Modal -->
+    <div id="add-attachment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('add-attachment-modal')">&times;</span>
+            <h2>Add Attachment</h2>
+            <form id="add-attachment-form">
+                <input type="hidden" id="attachment-part-id">
+                <div class="form-group">
+                    <label for="attachment-name">Attachment Name*</label>
+                    <input type="text" id="attachment-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="attachment-file">File*</label>
+                    <input type="file" id="attachment-file" required>
+                </div>
+                <div class="form-group">
+                    <label for="attachment-description">Description</label>
+                    <textarea id="attachment-description"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-button" onclick="closeModal('add-attachment-modal')">Cancel</button>
+                    <button type="submit" class="save-button">Add Attachment</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Adjust Stock Modal -->
+    <div id="adjust-stock-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button" onclick="closeModal('adjust-stock-modal')">&times;</span>
+            <h2>Adjust Stock Levels</h2>
+            <form id="adjust-stock-form">
+                <input type="hidden" id="adjust-stock-part-id">
+                <div class="form-group">
+                    <label for="adjust-stock-location">Location*</label>
+                    <select id="adjust-stock-location" required>
+                        <!-- Will be populated when adjusting stock -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="adjust-stock-action">Action*</label>
+                    <select id="adjust-stock-action" required>
+                        <option value="add">Add Stock</option>
+                        <option value="remove">Remove Stock</option>
+                        <option value="set">Set Exact Quantity</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="adjust-stock-quantity">Quantity*</label>
+                    <input type="number" id="adjust-stock-quantity" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="adjust-stock-notes">Notes</label>
+                    <textarea id="adjust-stock-notes"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="cancel-button" onclick="closeModal('adjust-stock-modal')">Cancel</button>
+                    <button type="submit" class="save-button">Update Stock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // --- Data Management ---
+        let parts = JSON.parse(localStorage.getItem('parts')) || [
+            {
+                id: 'part1',
+                sku: 'RES10K0R25W',
+                name: '10k Ohm Resistor',
+                manufacturer: 'Vishay',
+                manufacturer_pn: 'VR000000000',
+                preferred_supplier: 'DigiKey',
+                cost: 0.05,
+                description: 'Standard 10k Ohm metal film resistor, through-hole package.',
+                status: 'Active',
+                category: 'resistors',
+                main_image: 'https://via.placeholder.com/280x200?text=Resistor',
+                thumbnails: [
+                    'https://via.placeholder.com/80x60?text=Resistor+Front',
+                    'https://via.placeholder.com/80x60?text=Resistor+Side'
+                ],
+                specifications: [
+                    { attribute: 'Resistance', value: '10 kOhm' },
+                    { attribute: 'Tolerance', value: '±5%' },
+                    { attribute: 'Power Rating', value: '0.25 W' },
+                    { attribute: 'Package', value: 'Through-hole' }
+                ],
+                inventory: [
+                    { location: 'WH1-A-101', current_stock: 1200, min_level: 500, reorder_point: 700 },
+                    { location: 'WH2-B-201', current_stock: 200, min_level: 100, reorder_point: 150 }
+                ],
+                history: [
+                    { datetime: new Date().toISOString(), user: 'System', action: 'Part Created', details: 'Initial registration' },
+                    { datetime: '2025-06-20T10:30:00Z', user: 'Jane Doe', action: 'Stock Received', details: '+500 units to WH1-A-101' },
+                    { datetime: '2025-06-15T14:00:00Z', user: 'John Smith', action: 'Spec Update', details: 'Changed tolerance from ±10% to ±5%' }
+                ],
+                attachments: [
+                    { name: 'Datasheet_Resistor_10k.pdf', url: '#', description: 'Manufacturer datasheet' },
+                    { name: 'Resistor_10k.step', url: '#', description: '3D CAD model' }
+                ]
+            },
+            {
+                id: 'part2',
+                sku: 'ATMEGA328P-PU',
+                name: 'ATmega328P Microcontroller',
+                manufacturer: 'Microchip',
+                manufacturer_pn: 'ATMEGA328P-PU',
+                preferred_supplier: 'Mouser',
+                cost: 2.50,
+                description: '8-bit AVR Microcontroller with 32KB Flash, 2KB SRAM, 1KB EEPROM.',
+                status: 'Active',
+                category: 'microcontrollers',
+                main_image: 'https://via.placeholder.com/280x200?text=ATmega328P',
+                thumbnails: [
+                    'https://via.placeholder.com/80x60?text=ATmega+Top',
+                    'https://via.placeholder.com/80x60?text=ATmega+Pins'
+                ],
+                specifications: [
+                    { attribute: 'Architecture', value: '8-bit AVR' },
+                    { attribute: 'Flash Memory', value: '32 KB' },
+                    { attribute: 'SRAM', value: '2 KB' },
+                    { attribute: 'Speed', value: '20 MHz' },
+                    { attribute: 'Package', value: 'DIP-28' }
+                ],
+                inventory: [
+                    { location: 'WH1-B-205', current_stock: 50, min_level: 20, reorder_point: 30 }
+                ],
+                history: [
+                    { datetime: new Date().toISOString(), user: 'System', action: 'Part Created', details: 'Initial registration' },
+                    { datetime: '2025-06-18T09:00:00Z', user: 'Jane Doe', action: 'Stock Issued', details: '-10 units for Project X' }
+                ],
+                attachments: [
+                    { name: 'ATmega328P_Datasheet.pdf', url: '#', description: 'Technical datasheet' }
+                ]
+            },
+            {
+                id: 'part3',
+                sku: 'CAP47UF16V',
+                name: 'Electrolytic Capacitor 47uF',
+                manufacturer: 'Panasonic',
+                manufacturer_pn: 'EEU-FC1C470',
+                preferred_supplier: 'Farnell',
+                cost: 0.15,
+                description: 'Standard radial electrolytic capacitor, 47uF, 16V rating.',
+                status: 'Active',
+                category: 'capacitors',
+                main_image: 'https://via.placeholder.com/280x200?text=Capacitor',
+                thumbnails: [
+                    'https://via.placeholder.com/80x60?text=Cap+Front',
+                    'https://via.placeholder.com/80x60?text=Cap+Side'
+                ],
+                specifications: [
+                    { attribute: 'Capacitance', value: '47 μF' },
+                    { attribute: 'Voltage Rating', value: '16 V' },
+                    { attribute: 'Type', value: 'Electrolytic' },
+                    { attribute: 'Package', value: 'Radial' }
+                ],
+                inventory: [
+                    { location: 'WH1-A-105', current_stock: 300, min_level: 150, reorder_point: 200 }
+                ],
+                history: [
+                    { datetime: new Date().toISOString(), user: 'System', action: 'Part Created', details: 'Initial registration' },
+                    { datetime: '2025-06-22T15:10:00Z', user: 'Assembly Tech', action: 'Stock Issued', details: '-50 units for PCB Assembly' }
+                ],
+                attachments: [
+                    { name: 'Panasonic_Capacitor_EEU-FC1C470.pdf', url: '#', description: 'Manufacturer datasheet' }
+                ]
+            }
+        ];
+
+        // Initialize with 35 more sample parts if localStorage is empty
+        if (!localStorage.getItem('parts')) {
+            const categories = ['resistors', 'capacitors', 'microcontrollers', 'connectors', 'diodes', 'transistors', 'ics'];
+            const manufacturers = ['Vishay', 'Panasonic', 'Microchip', 'Texas Instruments', 'STMicroelectronics', 'ON Semiconductor', 'Murata'];
+            const suppliers = ['DigiKey', 'Mouser', 'Farnell', 'RS Components', 'Element14'];
+            
+            for (let i = 4; i <= 38; i++) {
+                const category = categories[Math.floor(Math.random() * categories.length)];
+                const manufacturer = manufacturers[Math.floor(Math.random() * manufacturers.length)];
+                const supplier = suppliers[Math.floor(Math.random() * suppliers.length)];
+                
+                parts.push({
+                    id: `part${i}`,
+                    sku: `PART${i.toString().padStart(3, '0')}`,
+                    name: `Sample ${category.charAt(0).toUpperCase() + category.slice(1)} ${i}`,
+                    manufacturer: manufacturer,
+                    manufacturer_pn: `MPN-${Math.floor(1000 + Math.random() * 9000)}`,
+                    preferred_supplier: supplier,
+                    cost: parseFloat((Math.random() * 10).toFixed(2)),
+                    description: `Sample ${category} part for demonstration purposes.`,
+                    status: 'Active',
+                    category: category,
+                    main_image: 'https://via.placeholder.com/280x200?text=Part+' + i,
+                    thumbnails: [
+                        'https://via.placeholder.com/80x60?text=Thumb+' + i + '-1',
+                        'https://via.placeholder.com/80x60?text=Thumb+' + i + '-2'
+                    ],
+                    specifications: [
+                        { attribute: 'Type', value: category.charAt(0).toUpperCase() + category.slice(1) },
+                        { attribute: 'Rating', value: `${Math.floor(1 + Math.random() * 100)}V` },
+                        { attribute: 'Package', value: ['SMD', 'Through-hole', 'Radial', 'Axial'][Math.floor(Math.random() * 4)] }
+                    ],
+                    inventory: [
+                        { 
+                            location: `WH${Math.floor(1 + Math.random() * 3)}-${String.fromCharCode(65 + Math.floor(Math.random() * 3))}-${Math.floor(100 + Math.random() * 900)}`,
+                            current_stock: Math.floor(10 + Math.random() * 1000),
+                            min_level: Math.floor(5 + Math.random() * 100),
+                            reorder_point: Math.floor(10 + Math.random() * 200)
+                        }
+                    ],
+                    history: [
+                        { datetime: new Date().toISOString(), user: 'System', action: 'Part Created', details: 'Initial registration' }
+                    ],
+                    attachments: []
+                });
+            }
+            
+            savePartsToLocalStorage();
+        }
+
+        function savePartsToLocalStorage() {
+            localStorage.setItem('parts', JSON.stringify(parts));
+        }
+
+        // --- UI State Management ---
+        let currentView = 'list'; // 'list' or 'detail'
+        let currentPartId = null; // Track which part is currently being viewed
+
+        function showPartsList() {
+            document.getElementById('parts-list-section').classList.remove('hidden');
+            document.getElementById('part-detail-section').classList.add('hidden');
+            currentView = 'list';
+            renderPartsTable(parts); // Re-render with all data or current filters
+        }
+
+        function showPartDetail(partId) {
+            const part = parts.find(p => p.id === partId);
+            if (!part) {
+                alert('Part not found!');
+                return;
+            }
+
+            currentPartId = partId;
+            document.getElementById('parts-list-section').classList.add('hidden');
+            document.getElementById('part-detail-section').classList.remove('hidden');
+            currentView = 'detail';
+
+            // Populate general info
+            document.getElementById('detail-part-name').innerText = `${part.name} (${part.sku})`;
+            document.getElementById('detail-sku').innerText = part.sku;
+            document.getElementById('detail-manufacturer').innerText = part.manufacturer;
+            document.getElementById('detail-mfr-pn').innerText = part.manufacturer_pn;
+            document.getElementById('detail-supplier').innerText = part.preferred_supplier;
+            document.getElementById('detail-cost').innerText = `$${part.cost.toFixed(2)}`;
+            document.getElementById('detail-description').innerText = part.description;
+            document.getElementById('detail-status').innerText = part.status;
+            document.getElementById('detail-category').innerText = part.category.charAt(0).toUpperCase() + part.category.slice(1);
+
+            // Populate images
+            document.getElementById('detail-main-image').src = part.main_image;
+            const thumbnailGallery = document.getElementById('thumbnail-gallery');
+            thumbnailGallery.innerHTML = ''; // Clear existing thumbnails
+            part.thumbnails.forEach((thumbUrl, index) => {
+                const img = document.createElement('img');
+                img.src = thumbUrl;
+                img.alt = 'Thumbnail ' + (index + 1);
+                img.style.cssText = 'width: 80px; height: 60px; margin: 5px; cursor: pointer; border: 1px solid #ccc;';
+                img.onclick = () => document.getElementById('detail-main-image').src = thumbUrl;
+                thumbnailGallery.appendChild(img);
+            });
+
+            // Populate tabs
+            populateTab('specifications', part.specifications, ['Attribute', 'Value']);
+            populateTab('inventory', part.inventory, ['Location', 'Current Stock', 'Min Level', 'Reorder Point']);
+            populateTab('history', part.history, ['Date/Time', 'User', 'Action', 'Details']);
+            populateTab('attachments', part.attachments, ['Name', '']); // No specific headers needed for attachments list
+
+            // Activate default tab
+            document.querySelectorAll('.part-detail-tabs button').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.querySelector('.tab-button[data-tab="specifications"]').classList.add('active');
+            document.getElementById('tab-specifications').classList.remove('hidden');
+        }
+
+        function populateTab(tabId, data, headers) {
+            const tabContentDiv = document.getElementById(`tab-${tabId}`);
+            if (!tabContentDiv) return;
+
+            // Clear previous content except for h3
+            const existingTable = tabContentDiv.querySelector('table');
+            if (existingTable) {
+                existingTable.remove();
+            }
+            const existingList = tabContentDiv.querySelector('ul');
+            if (existingList) {
+                existingList.remove();
+            }
+
+            if (tabId === 'attachments') {
+                const ul = document.createElement('ul');
+                ul.id = 'attachments-list';
+                data.forEach(item => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = item.url;
+                    a.textContent = item.name;
+                    a.onclick = (e) => { e.preventDefault(); alert(`Downloading: ${item.name} (Not implemented)`); };
+                    
+                    if (item.description) {
+                        const desc = document.createElement('span');
+                        desc.textContent = ` - ${item.description}`;
+                        desc.style.color = '#666';
+                        desc.style.fontSize = '0.9em';
+                        a.appendChild(desc);
+                    }
+                    
+                    li.appendChild(a);
+                    ul.appendChild(li);
+                });
+                tabContentDiv.appendChild(ul);
+            } else {
+                const table = document.createElement('table');
+                const thead = document.createElement('thead');
+                const tbody = document.createElement('tbody');
+                let headerRow = '<tr>';
+                headers.forEach(header => {
+                    headerRow += `<th>${header}</th>`;
+                });
+                headerRow += '</tr>';
+                thead.innerHTML = headerRow;
+                table.appendChild(thead);
+
+                data.forEach(item => {
+                    const row = document.createElement('tr');
+                    Object.values(item).forEach(value => {
+                        const td = document.createElement('td');
+                        td.innerHTML = value; // Use innerHTML for potential HTML entities like &mu;
+                        row.appendChild(td);
+                    });
+                    tbody.appendChild(row);
+                });
+                table.appendChild(tbody);
+                tabContentDiv.appendChild(table);
+            }
+        }
+
+        // --- Modal Functions ---
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        function showAddPartModal() {
+            // Reset form
+            document.getElementById('add-part-form').reset();
+            document.getElementById('image-preview').innerHTML = '';
+            
+            // Add one empty spec row and one empty inventory row
+            document.getElementById('specifications-container').innerHTML = `
+                <div class="spec-row">
+                    <input type="text" placeholder="Attribute" class="spec-attribute">
+                    <input type="text" placeholder="Value" class="spec-value">
+                    <button type="button" class="remove-spec-button">&times;</button>
+                </div>
+            `;
+            
+            document.getElementById('inventory-container').innerHTML = `
+                <div class="inventory-row">
+                    <input type="text" placeholder="Location" class="inventory-location">
+                    <input type="number" placeholder="Quantity" class="inventory-quantity" min="0">
+                    <input type="number" placeholder="Min Level" class="inventory-min" min="0">
+                    <input type="number" placeholder="Reorder Point" class="inventory-reorder" min="0">
+                    <button type="button" class="remove-inventory-button">&times;</button>
+                </div>
+            `;
+            
+            // Set up event listeners for new elements
+            setupSpecRowEvents();
+            setupInventoryRowEvents();
+            
+            // Show the modal
+            showModal('add-part-modal');
+        }
+
+        function showEditPartModal(partId) {
+            const part = parts.find(p => p.id === partId);
+            if (!part) {
+                alert('Part not found!');
+                return;
+            }
+
+            // Populate form fields
+            document.getElementById('edit-part-id').value = part.id;
+            document.getElementById('edit-part-sku').value = part.sku;
+            document.getElementById('edit-part-name').value = part.name;
+            document.getElementById('edit-part-manufacturer').value = part.manufacturer;
+            document.getElementById('edit-part-mfr-pn').value = part.manufacturer_pn;
+            document.getElementById('edit-part-supplier').value = part.preferred_supplier.toLowerCase();
+            document.getElementById('edit-part-cost').value = part.cost;
+            document.getElementById('edit-part-description').value = part.description;
+            document.getElementById('edit-part-status').value = part.status.toLowerCase();
+            document.getElementById('edit-part-category').value = part.category;
+
+            // Populate images
+            const imagePreview = document.getElementById('edit-image-preview');
+            imagePreview.innerHTML = '';
+            [part.main_image, ...part.thumbnails].forEach((imgUrl, index) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'image-preview-item';
+                previewItem.innerHTML = `
+                    <img src="${imgUrl}" alt="Part Image ${index + 1}">
+                    <button class="remove-image" onclick="removeEditImage('${imgUrl}', ${index === 0})">&times;</button>
+                `;
+                imagePreview.appendChild(previewItem);
+            });
+
+            // Populate specifications
+            const specsContainer = document.getElementById('edit-specifications-container');
+            specsContainer.innerHTML = '';
+            part.specifications.forEach(spec => {
+                const specRow = document.createElement('div');
+                specRow.className = 'spec-row';
+                specRow.innerHTML = `
+                    <input type="text" placeholder="Attribute" class="spec-attribute" value="${spec.attribute}">
+                    <input type="text" placeholder="Value" class="spec-value" value="${spec.value}">
+                    <button type="button" class="remove-spec-button">&times;</button>
+                `;
+                specsContainer.appendChild(specRow);
+            });
+
+            // Populate inventory
+            const inventoryContainer = document.getElementById('edit-inventory-container');
+            inventoryContainer.innerHTML = '';
+            part.inventory.forEach(inv => {
+                const invRow = document.createElement('div');
+                invRow.className = 'inventory-row';
+                invRow.innerHTML = `
+                    <input type="text" placeholder="Location" class="inventory-location" value="${inv.location}">
+                    <input type="number" placeholder="Quantity" class="inventory-quantity" min="0" value="${inv.current_stock}">
+                    <input type="number" placeholder="Min Level" class="inventory-min" min="0" value="${inv.min_level}">
+                    <input type="number" placeholder="Reorder Point" class="inventory-reorder" min="0" value="${inv.reorder_point}">
+                    <button type="button" class="remove-inventory-button">&times;</button>
+                `;
+                inventoryContainer.appendChild(invRow);
+            });
+
+            // Set up event listeners for new elements
+            setupSpecRowEvents();
+            setupInventoryRowEvents();
+            
+            // Show the modal
+            showModal('edit-part-modal');
+        }
+
+        function showBulkUploadModal() {
+            document.getElementById('bulk-image-preview').innerHTML = '';
+            showModal('bulk-upload-modal');
+        }
+
+        function showAddAttachmentModal() {
+            document.getElementById('add-attachment-form').reset();
+            document.getElementById('attachment-part-id').value = currentPartId;
+            showModal('add-attachment-modal');
+        }
+
+        function showAdjustStockModal() {
+            const part = parts.find(p => p.id === currentPartId);
+            if (!part) {
+                alert('Part not found!');
+                return;
+            }
+
+            document.getElementById('adjust-stock-form').reset();
+            document.getElementById('adjust-stock-part-id').value = currentPartId;
+            
+            const locationSelect = document.getElementById('adjust-stock-location');
+            locationSelect.innerHTML = '';
+            
+            part.inventory.forEach(inv => {
+                const option = document.createElement('option');
+                option.value = inv.location;
+                option.textContent = inv.location;
+                locationSelect.appendChild(option);
+            });
+            
+            // Add option for new location
+            const newOption = document.createElement('option');
+            newOption.value = 'new';
+            newOption.textContent = 'Add New Location';
+            locationSelect.appendChild(newOption);
+            
+            showModal('adjust-stock-modal');
+        }
+
+        // --- Form Handling ---
+        function addSpecRow() {
+            const container = document.getElementById('specifications-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'spec-row';
+            newRow.innerHTML = `
+                <input type="text" placeholder="Attribute" class="spec-attribute">
+                <input type="text" placeholder="Value" class="spec-value">
+                <button type="button" class="remove-spec-button">&times;</button>
+            `;
+            container.appendChild(newRow);
+            setupSpecRowEvents();
+        }
+
+        function addEditSpecRow() {
+            const container = document.getElementById('edit-specifications-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'spec-row';
+            newRow.innerHTML = `
+                <input type="text" placeholder="Attribute" class="spec-attribute">
+                <input type="text" placeholder="Value" class="spec-value">
+                <button type="button" class="remove-spec-button">&times;</button>
+            `;
+            container.appendChild(newRow);
+            setupSpecRowEvents();
+        }
+
+        function addInventoryRow() {
+            const container = document.getElementById('inventory-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'inventory-row';
+            newRow.innerHTML = `
+                <input type="text" placeholder="Location" class="inventory-location">
+                <input type="number" placeholder="Quantity" class="inventory-quantity" min="0">
+                <input type="number" placeholder="Min Level" class="inventory-min" min="0">
+                <input type="number" placeholder="Reorder Point" class="inventory-reorder" min="0">
+                <button type="button" class="remove-inventory-button">&times;</button>
+            `;
+            container.appendChild(newRow);
+            setupInventoryRowEvents();
+        }
+
+        function addEditInventoryRow() {
+            const container = document.getElementById('edit-inventory-container');
+            const newRow = document.createElement('div');
+            newRow.className = 'inventory-row';
+            newRow.innerHTML = `
+                <input type="text" placeholder="Location" class="inventory-location">
+                <input type="number" placeholder="Quantity" class="inventory-quantity" min="0">
+                <input type="number" placeholder="Min Level" class="inventory-min" min="0">
+                <input type="number" placeholder="Reorder Point" class="inventory-reorder" min="0">
+                <button type="button" class="remove-inventory-button">&times;</button>
+            `;
+            container.appendChild(newRow);
+            setupInventoryRowEvents();
+        }
+
+        function setupSpecRowEvents() {
+            document.querySelectorAll('.remove-spec-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (document.querySelectorAll('.spec-row').length > 1) {
+                        this.parentElement.remove();
+                    } else {
+                        alert('A part must have at least one specification.');
+                    }
+                });
+            });
+        }
+
+        function setupInventoryRowEvents() {
+            document.querySelectorAll('.remove-inventory-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    if (document.querySelectorAll('.inventory-row').length > 1) {
+                        this.parentElement.remove();
+                    } else {
+                        alert('A part must have at least one inventory location.');
+                    }
+                });
+            });
+        }
+
+        // --- Image Handling ---
+        function handleImageUpload(event, previewContainerId, isEdit = false) {
+            const files = event.target.files;
+            const previewContainer = document.getElementById(previewContainerId);
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.match('image.*')) continue;
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'image-preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button class="remove-image" onclick="this.parentElement.remove()">&times;</button>
+                    `;
+                    previewContainer.appendChild(previewItem);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function removeEditImage(imageUrl, isMainImage) {
+            if (confirm('Are you sure you want to remove this image?')) {
+                const part = parts.find(p => p.id === currentPartId);
+                if (!part) return;
+                
+                if (isMainImage) {
+                    // Remove main image
+                    part.main_image = part.thumbnails.length > 0 ? part.thumbnails[0] : 'https://via.placeholder.com/280x200?text=No+Image';
+                    if (part.thumbnails.length > 0) {
+                        part.thumbnails.shift(); // Remove the first thumbnail since it's now the main image
+                    }
+                } else {
+                    // Remove thumbnail
+                    part.thumbnails = part.thumbnails.filter(thumb => thumb !== imageUrl);
+                }
+                
+                savePartsToLocalStorage();
+                showEditPartModal(currentPartId); // Refresh the edit modal
+            }
+        }
+
+        // --- Data Operations ---
+        function addNewPart(formData) {
+            // Generate a unique ID
+            const newId = 'part' + (parts.length + 1);
+            
+            // Get specifications from form
+            const specs = [];
+            document.querySelectorAll('#specifications-container .spec-row').forEach(row => {
+                const attribute = row.querySelector('.spec-attribute').value;
+                const value = row.querySelector('.spec-value').value;
+                if (attribute && value) {
+                    specs.push({ attribute, value });
+                }
+            });
+            
+            // Get inventory from form
+            const inventory = [];
+            document.querySelectorAll('#inventory-container .inventory-row').forEach(row => {
+                const location = row.querySelector('.inventory-location').value;
+                const current_stock = parseInt(row.querySelector('.inventory-quantity').value) || 0;
+                const min_level = parseInt(row.querySelector('.inventory-min').value) || 0;
+                const reorder_point = parseInt(row.querySelector('.inventory-reorder').value) || 0;
+                
+                if (location) {
+                    inventory.push({
+                        location,
+                        current_stock,
+                        min_level,
+                        reorder_point
+                    });
+                }
+            });
+            
+            // Get images (in a real app, these would be uploaded to a server)
+            const images = [];
+            document.querySelectorAll('#image-preview .image-preview-item img').forEach(img => {
+                images.push(img.src); // In a real app, this would be the server path
+            });
+            
+            const mainImage = images.length > 0 ? images[0] : 'https://via.placeholder.com/280x200?text=No+Image';
+            const thumbnails = images.length > 1 ? images.slice(1) : [];
+            
+            // Create new part object
+            const newPart = {
+                id: newId,
+                sku: formData.sku,
+                name: formData.name,
+                manufacturer: formData.manufacturer,
+                manufacturer_pn: formData.mfr_pn,
+                preferred_supplier: formData.supplier,
+                cost: parseFloat(formData.cost) || 0,
+                description: formData.description,
+                status: formData.status,
+                category: formData.category,
+                main_image: mainImage,
+                thumbnails: thumbnails,
+                specifications: specs,
+                inventory: inventory,
+                history: [{
+                    datetime: new Date().toISOString(),
+                    user: document.getElementById('current-user').textContent,
+                    action: 'Part Created',
+                    details: 'Initial registration'
+                }],
+                attachments: []
+            };
+            
+            // Add to parts array and save
+            parts.push(newPart);
+            savePartsToLocalStorage();
+            
+            // Show the new part
+            showPartDetail(newId);
+        }
+
+        function updatePart(partId, formData) {
+            const partIndex = parts.findIndex(p => p.id === partId);
+            if (partIndex === -1) return;
+            
+            // Get specifications from form
+            const specs = [];
+            document.querySelectorAll('#edit-specifications-container .spec-row').forEach(row => {
+                const attribute = row.querySelector('.spec-attribute').value;
+                const value = row.querySelector('.spec-value').value;
+                if (attribute && value) {
+                    specs.push({ attribute, value });
+                }
+            });
+            
+            // Get inventory from form
+            const inventory = [];
+            document.querySelectorAll('#edit-inventory-container .inventory-row').forEach(row => {
+                const location = row.querySelector('.inventory-location').value;
+                const current_stock = parseInt(row.querySelector('.inventory-quantity').value) || 0;
+                const min_level = parseInt(row.querySelector('.inventory-min').value) || 0;
+                const reorder_point = parseInt(row.querySelector('.inventory-reorder').value) || 0;
+                
+                if (location) {
+                    inventory.push({
+                        location,
+                        current_stock,
+                        min_level,
+                        reorder_point
+                    });
+                }
+            });
+            
+            // Get new images (in a real app, these would be uploaded to a server)
+            const newImages = [];
+            document.querySelectorAll('#edit-image-preview .image-preview-item img').forEach(img => {
+                if (!img.src.startsWith('data:')) return; // Only include newly uploaded images
+                newImages.push(img.src);
+            });
+            
+            // Update part data
+            parts[partIndex] = {
+                ...parts[partIndex],
+                sku: formData.sku,
+                name: formData.name,
+                manufacturer: formData.manufacturer,
+                manufacturer_pn: formData.mfr_pn,
+                preferred_supplier: formData.supplier,
+                cost: parseFloat(formData.cost) || 0,
+                description: formData.description,
+                status: formData.status,
+                category: formData.category,
+                specifications: specs,
+                inventory: inventory,
+                history: [
+                    ...parts[partIndex].history,
+                    {
+                        datetime: new Date().toISOString(),
+                        user: document.getElementById('current-user').textContent,
+                        action: 'Part Updated',
+                        details: 'Details modified'
+                    }
+                ]
+            };
+            
+            // Add new images if any
+            if (newImages.length > 0) {
+                parts[partIndex].thumbnails = [...parts[partIndex].thumbnails, ...newImages];
+            }
+            
+            savePartsToLocalStorage();
+            
+            // Refresh the detail view
+            showPartDetail(partId);
+        }
+
+        function addAttachmentToPart(partId, formData) {
+            const partIndex = parts.findIndex(p => p.id === partId);
+            if (partIndex === -1) return;
+            
+            // In a real app, this would upload the file to a server
+            const newAttachment = {
+                name: formData.name,
+                url: '#', // In a real app, this would be the server path
+                description: formData.description
+            };
+            
+            parts[partIndex].attachments.push(newAttachment);
+            parts[partIndex].history.push({
+                datetime: new Date().toISOString(),
+                user: document.getElementById('current-user').textContent,
+                action: 'Attachment Added',
+                details: `Added ${formData.name}`
+            });
+            
+            savePartsToLocalStorage();
+            
+            // Refresh the detail view
+            showPartDetail(partId);
+        }
+
+        function adjustStockForPart(partId, formData) {
+            const partIndex = parts.findIndex(p => p.id === partId);
+            if (partIndex === -1) return;
+            
+            const location = formData.location;
+            const action = formData.action;
+            const quantity = parseInt(formData.quantity) || 0;
+            const notes = formData.notes || '';
+            
+            let inventoryIndex = parts[partIndex].inventory.findIndex(inv => inv.location === location);
+            
+            if (inventoryIndex === -1 && location === 'new') {
+                // Add new location
+                inventoryIndex = parts[partIndex].inventory.length;
+                parts[partIndex].inventory.push({
+                    location: prompt('Enter new location name:') || 'WH-UNKNOWN',
+                    current_stock: 0,
+                    min_level: 0,
+                    reorder_point: 0
+                });
+            }
+            
+            if (inventoryIndex === -1) return;
+            
+            const currentStock = parts[partIndex].inventory[inventoryIndex].current_stock;
+            let newStock = currentStock;
+            let actionDescription = '';
+            
+            switch (action) {
+                case 'add':
+                    newStock = currentStock + quantity;
+                    actionDescription = `Added ${quantity} units to ${location}`;
+                    break;
+                case 'remove':
+                    newStock = Math.max(0, currentStock - quantity);
+                    actionDescription = `Removed ${quantity} units from ${location}`;
+                    break;
+                case 'set':
+                    newStock = Math.max(0, quantity);
+                    actionDescription = `Set stock to ${quantity} units at ${location}`;
+                    break;
+            }
+            
+            // Update inventory
+            parts[partIndex].inventory[inventoryIndex].current_stock = newStock;
+            
+            // Add to history
+            parts[partIndex].history.push({
+                datetime: new Date().toISOString(),
+                user: document.getElementById('current-user').textContent,
+                action: 'Stock Adjusted',
+                details: actionDescription + (notes ? ` (${notes})` : '')
+            });
+            
+            savePartsToLocalStorage();
+            
+            // Refresh the detail view
+            showPartDetail(partId);
+        }
+
+        function processBulkUpload() {
+            const files = document.getElementById('bulk-image-upload').files;
+            if (files.length === 0) {
+                alert('Please select at least one image to upload.');
+                return;
+            }
+            
+            let successCount = 0;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.match('image.*')) continue;
+                
+                // Extract SKU from filename (simple pattern matching)
+                const filename = file.name.toUpperCase();
+                const skuMatch = filename.match(/(SKU|PART|ITEM)[-_]?([A-Z0-9]+)/i) || 
+                                filename.match(/([A-Z]{2,}\d{3,})/);
+                
+                if (!skuMatch) {
+                    console.log(`Skipping ${file.name} - no SKU found in filename`);
+                    continue;
+                }
+                
+                const sku = skuMatch[0].replace(/^SKU/i, '').replace(/^PART/i, '').replace(/^ITEM/i, '');
+                
+                // Find part with this SKU
+                const partIndex = parts.findIndex(p => p.sku.toUpperCase().includes(sku));
+                if (partIndex === -1) {
+                    console.log(`No part found with SKU matching ${sku} (from ${file.name})`);
+                    continue;
+                }
+                
+                // In a real app, this would upload the file to a server
+                // For this demo, we'll just add a placeholder
+                const newImageUrl = `https://via.placeholder.com/280x200?text=${parts[partIndex].name}`;
+                
+                // Add as a thumbnail
+                parts[partIndex].thumbnails.push(newImageUrl);
+                successCount++;
+                
+                // Add to history
+                parts[partIndex].history.push({
+                    datetime: new Date().toISOString(),
+                    user: document.getElementById('current-user').textContent,
+                    action: 'Image Added',
+                    details: `Added image from ${file.name}`
+                });
+            }
+            
+            savePartsToLocalStorage();
+            closeModal('bulk-upload-modal');
+            
+            if (successCount > 0) {
+                alert(`Successfully matched and uploaded ${successCount} images.`);
+                if (currentView === 'detail') {
+                    showPartDetail(currentPartId); // Refresh the current view
+                } else {
+                    renderPartsTable(parts); // Refresh the list view
+                }
+            } else {
+                alert('No images were successfully matched to parts. Please check that your filenames contain valid SKUs.');
+            }
+        }
+
+        // --- UI Helpers ---
+        function editCurrentPart() {
+            if (currentPartId) {
+                showEditPartModal(currentPartId);
+            }
+        }
+
+        function addAttachmentToCurrentPart() {
+            if (currentPartId) {
+                showAddAttachmentModal();
+            }
+        }
+
+        function adjustStockForCurrentPart() {
+            if (currentPartId) {
+                showAdjustStockModal();
+            }
+        }
+
+        function renderPartsTable(partsToRender) {
+            const tbody = document.getElementById('parts-table-body');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            partsToRender.forEach(part => {
+                const totalStock = part.inventory.reduce((sum, item) => sum + item.current_stock, 0);
+                const locations = part.inventory.map(item => item.location).join(', ');
+                
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${part.sku}</td>
+                    <td>${part.name}</td>
+                    <td>${part.manufacturer}</td>
+                    <td>${totalStock}</td>
+                    <td>${locations}</td>
+                    <td>
+                        <button class="view-button" data-part-id="${part.id}">View</button>
+                        <button class="edit-button" data-part-id="${part.id}">Edit</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function globalSearch() {
+            const searchTerm = document.getElementById('global-search-input').value.toLowerCase();
+            const filteredParts = parts.filter(part =>
+                part.sku.toLowerCase().includes(searchTerm) ||
+                part.name.toLowerCase().includes(searchTerm) ||
+                part.manufacturer.toLowerCase().includes(searchTerm) ||
+                part.description.toLowerCase().includes(searchTerm) ||
+                part.manufacturer_pn.toLowerCase().includes(searchTerm)
+            );
+            renderPartsTable(filteredParts);
+        }
+
+        function applyFilters() {
+            const skuFilter = document.getElementById('search-sku').value.toLowerCase();
+            const keywordFilter = document.getElementById('search-keyword').value.toLowerCase();
+            const categoryFilter = document.getElementById('filter-category').value;
+            const supplierFilter = document.getElementById('filter-supplier').value;
+
+            const filteredParts = parts.filter(part => {
+                const matchesSku = skuFilter === '' || part.sku.toLowerCase().includes(skuFilter);
+                const matchesKeyword = keywordFilter === '' ||
+                                       part.name.toLowerCase().includes(keywordFilter) ||
+                                       part.description.toLowerCase().includes(keywordFilter) ||
+                                       part.manufacturer_pn.toLowerCase().includes(keywordFilter);
+                const matchesCategory = categoryFilter === '' || part.category === categoryFilter;
+                const matchesSupplier = supplierFilter === '' || 
+                                        part.preferred_supplier.toLowerCase().includes(supplierFilter.toLowerCase());
+
+                return matchesSku && matchesKeyword && matchesCategory && matchesSupplier;
+            });
+
+            renderPartsTable(filteredParts);
+        }
+
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initial render
+            renderPartsTable(parts);
+            
+            // Parts table events
+            document.getElementById('parts-table-body').addEventListener('click', (event) => {
+                if (event.target.classList.contains('view-button')) {
+                    const partId = event.target.dataset.partId;
+                    showPartDetail(partId);
+                } else if (event.target.classList.contains('edit-button')) {
+                    const partId = event.target.dataset.partId;
+                    showEditPartModal(partId);
+                }
+            });
+
+            // Tab switching
+            document.querySelectorAll('.part-detail-tabs button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    document.querySelectorAll('.part-detail-tabs button').forEach(btn => btn.classList.remove('active'));
+                    event.target.classList.add('active');
+
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+                    const tabId = event.target.dataset.tab;
+                    document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+                });
+            });
+
+            // Navigation links
+            document.getElementById('nav-parts').addEventListener('click', (e) => {
+                e.preventDefault();
+                showPartsList();
+            });
+            document.getElementById('nav-dashboard').addEventListener('click', (e) => { 
+                e.preventDefault(); 
+                alert('Dashboard view would be shown here.'); 
+            });
+            document.getElementById('nav-inventory').addEventListener('click', (e) => { 
+                e.preventDefault(); 
+                alert('Inventory tracking view would be shown here.'); 
+            });
+            document.getElementById('nav-reports').addEventListener('click', (e) => { 
+                e.preventDefault(); 
+                alert('Reports view would be shown here.'); 
+            });
+            document.getElementById('nav-suppliers').addEventListener('click', (e) => { 
+                e.preventDefault(); 
+                alert('Suppliers view would be shown here.'); 
+            });
+
+            // Form submissions
+            document.getElementById('add-part-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = {
+                    sku: document.getElementById('new-part-sku').value,
+                    name: document.getElementById('new-part-name').value,
+                    manufacturer: document.getElementById('new-part-manufacturer').value,
+                    mfr_pn: document.getElementById('new-part-mfr-pn').value,
+                    supplier: document.getElementById('new-part-supplier').value,
+                    cost: document.getElementById('new-part-cost').value,
+                    description: document.getElementById('new-part-description').value,
+                    status: document.getElementById('new-part-status').value,
+                    category: document.getElementById('new-part-category').value
+                };
+                addNewPart(formData);
+                closeModal('add-part-modal');
+            });
+
+            document.getElementById('edit-part-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const partId = document.getElementById('edit-part-id').value;
+                const formData = {
+                    sku: document.getElementById('edit-part-sku').value,
+                    name: document.getElementById('edit-part-name').value,
+                    manufacturer: document.getElementById('edit-part-manufacturer').value,
+                    mfr_pn: document.getElementById('edit-part-mfr-pn').value,
+                    supplier: document.getElementById('edit-part-supplier').value,
+                    cost: document.getElementById('edit-part-cost').value,
+                    description: document.getElementById('edit-part-description').value,
+                    status: document.getElementById('edit-part-status').value,
+                    category: document.getElementById('edit-part-category').value
+                };
+                updatePart(partId, formData);
+                closeModal('edit-part-modal');
+            });
+
+            document.getElementById('add-attachment-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const partId = document.getElementById('attachment-part-id').value;
+                const formData = {
+                    name: document.getElementById('attachment-name').value,
+                    description: document.getElementById('attachment-description').value
+                    // In a real app, we'd include the file upload here
+                };
+                addAttachmentToPart(partId, formData);
+                closeModal('add-attachment-modal');
+            });
+
+            document.getElementById('adjust-stock-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const partId = document.getElementById('adjust-stock-part-id').value;
+                const formData = {
+                    location: document.getElementById('adjust-stock-location').value,
+                    action: document.getElementById('adjust-stock-action').value,
+                    quantity: document.getElementById('adjust-stock-quantity').value,
+                    notes: document.getElementById('adjust-stock-notes').value
+                };
+                adjustStockForPart(partId, formData);
+                closeModal('adjust-stock-modal');
+            });
+
+            // Image upload handlers
+            document.getElementById('part-images-upload').addEventListener('change', function(e) {
+                handleImageUpload(e, 'image-preview');
+            });
+
+            document.getElementById('edit-part-images-upload').addEventListener('change', function(e) {
+                handleImageUpload(e, 'edit-image-preview', true);
+            });
+
+            document.getElementById('bulk-image-upload').addEventListener('change', function(e) {
+                const previewContainer = document.getElementById('bulk-image-preview');
+                previewContainer.innerHTML = '';
+                
+                const files = e.target.files;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (!file.type.match('image.*')) continue;
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewItem = document.createElement('div');
+                        previewItem.className = 'image-preview-item';
+                        previewItem.innerHTML = `
+                            <img src="${e.target.result}" alt="${file.name}">
+                            <div style="font-size: 12px; margin-top: 5px;">${file.name}</div>
+                        `;
+                        previewContainer.appendChild(previewItem);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+
+            // Drag and drop for image uploads
+            const setupDragAndDrop = (dropZone, inputElement) => {
+                dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    dropZone.style.borderColor = '#3498db';
+                    dropZone.style.backgroundColor = '#f0f8ff';
+                });
+
+                dropZone.addEventListener('dragleave', () => {
+                    dropZone.style.borderColor = '#ccc';
+                    dropZone.style.backgroundColor = '';
+                });
+
+                dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    dropZone.style.borderColor = '#ccc';
+                    dropZone.style.backgroundColor = '';
+                    
+                    // Trigger the file input with the dropped files
+                    inputElement.files = e.dataTransfer.files;
+                    const event = new Event('change');
+                    inputElement.dispatchEvent(event);
+                });
+            };
+
+            // Set up drag and drop for all image upload areas
+            setupDragAndDrop(
+                document.querySelector('#add-part-modal .image-upload-container'),
+                document.getElementById('part-images-upload')
+            );
+            
+            setupDragAndDrop(
+                document.querySelector('#edit-part-modal .image-upload-container'),
+                document.getElementById('edit-part-images-upload')
+            );
+            
+            setupDragAndDrop(
+                document.querySelector('#bulk-upload-modal .image-upload-container'),
+                document.getElementById('bulk-image-upload')
+            );
+        });
+    </script>
+</body>
+</html>
